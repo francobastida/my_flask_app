@@ -1,0 +1,59 @@
+{% extends "layout.html" %}
+{% block content %}
+<h1>{{ title }}</h1>
+
+
+<h2>2019 UK General Election - Vote Share by Region</h2>
+
+<p>This chart shows that Labor lost Yorkshire and the Humber by 4,224 votes and Scotland by 6,564, meaning these two regions could be more competitive.</p>
+
+<p>It is unlikely that the East of England will vote for Labor, as the margin differences are between 55% v. 30%.</p>
+
+<canvas id="regionalChart"></canvas>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const regions = {{ regions | tojson }};
+    const con = {{ regional_con_votes | tojson }};
+    const lab = {{ regional_lab_votes | tojson }};
+    const libdem = {{ regional_libdem_votes | tojson }};
+    const green = {{ regional_green_votes | tojson }};
+    const snp = {{ regional_snp_votes | tojson }};
+    const pc = {{ regional_pc_votes | tojson }};
+    const brexit = {{ regional_brexit_votes | tojson }};
+
+    new Chart(document.getElementById('regionalChart'), {
+        type: 'bar',
+        data: {
+            labels: regions,
+            datasets: [
+                { label: 'Conservative', data: con, backgroundColor: 'blue' },
+                { label: 'Labour', data: lab, backgroundColor: 'red' },
+                { label: 'Lib Dem', data: libdem, backgroundColor: 'orange' },
+                { label: 'Green', data: green, backgroundColor: 'green' },
+                { label: 'SNP', data: snp, backgroundColor: 'purple' },
+                { label: 'Plaid Cymru', data: pc, backgroundColor: 'darkgreen' },
+                { label: 'Brexit', data: brexit, backgroundColor: 'gray' }
+            ]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                title: {
+                    display: true,
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: { display: true, text: 'Vote Share (%)' }
+                },
+                x: {
+                    title: { display: true, text: 'Region' },
+                    ticks: { maxRotation: 45, minRotation: 0 }
+                }
+            }
+        }
+    });
+</script>
+{% endblock %}

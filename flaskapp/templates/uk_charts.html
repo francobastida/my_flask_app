@@ -1,0 +1,65 @@
+{% extends "layout.html" %}
+{% block content %}
+    <h1>{{ title }}</h1>
+
+    <h2>Voter Turnout: Constituencies</h2>
+    <canvas id="turnoutChart"></canvas>
+
+    <h2>Votes: Conservative vs Labour</h2>
+    <canvas id="voteChart"></canvas>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const names = {{ names | tojson }};
+        const turnout = {{ turnout | tojson }};
+        const conVotes = {{ con_votes | tojson }};
+        const labVotes = {{ lab_votes | tojson }};
+
+        new Chart(document.getElementById('turnoutChart'), {
+            type: 'bar',
+            data: {
+                labels: names,
+                datasets: [{
+                    label: 'Turnout (%)',
+                    data: turnout,
+                    backgroundColor: 'steelblue'
+                }]
+            },
+            options: {
+                scales: {
+                    x: {
+                        ticks: { maxRotation: 90, minRotation: 45 }
+                    },
+                    y: { beginAtZero: true }
+                }
+            }
+        });
+
+        new Chart(document.getElementById('voteChart'), {
+            type: 'bar',
+            data: {
+                labels: names,
+                datasets: [
+                    {
+                        label: 'Conservative',
+                        data: conVotes,
+                        backgroundColor: 'rgb(0, 123, 255)'
+                    },
+                    {
+                        label: 'Labour',
+                        data: labVotes,
+                        backgroundColor: 'rgb(220, 53, 69)'
+                    }
+                ]
+            },
+            options: {
+                scales: {
+                    x: {
+                        ticks: { maxRotation: 90, minRotation: 45 }
+                    },
+                    y: { beginAtZero: true }
+                }
+            }
+        });
+    </script>
+{% endblock %}

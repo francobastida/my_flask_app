@@ -1,0 +1,98 @@
+{% extends "layout.html" %}
+{% block content %}
+    <h1>{{ title }}</h1>
+
+    <h2>2019 Retired Population vs Conservative Turnout (Vote Share)</h2>
+
+    <p>This chart shows the voter share and turnout for retired population and also for Conservative voters. We assume age-graded effects, meaning older voters (e.g. those retired, will vote Conservative).</p>
+        
+    <p>However, in 5 regions under the 50% turnout threshold, this does not apply (Yorkshire with 14.9% retirees but 43% Conservative, North West with 15.1% and 37.5% Conservative, and Scotland with 15% retired and 25% Conservative). London is an atypical case where there is only 8.7% retired and 68% turnout.</p>
+        
+    <canvas id="combinedScatter"></canvas>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@1.4.0"></script>
+    <script>
+        const regions = {{ regions | tojson }};
+        const retired = {{ retired | tojson }};
+        const conShare = {{ con_share | tojson }};
+        const turnout = {{ turnout | tojson }};
+
+        const conservativePoints = regions.map((r, i) => ({
+            x: retired[i],
+            y: conShare[i],
+            region: r
+        }));
+
+        const turnoutPoints = regions.map((r, i) => ({
+            x: retired[i],
+            y: turnout[i],
+            region: r
+        }));
+
+        new Chart(document.getElementById('combinedScatter'), {
+            type: 'scatter',
+            data: {
+                datasets: [
+                    {
+                        label: '% Retired vs % Conservative Vote',
+                        data: conservativePoints,
+                        backgroundColor: 'blue'
+                    },
+                    {
+                        label: '% Retired vs % Turnout',
+                        data: turnoutPoints,
+                        backgroundColor: 'green'
+                    }
+                ]
+            },
+        options: {
+            plugins: {
+                annotation: {
+                    annotations: {
+                        thresholdLine: {
+                            type: 'line',
+                            yMin: 50,
+                            yMax: 50,
+                            borderColor: 'red',
+                            borderWidth: 2,
+                            borderDash: [6, 6],
+                            label: {
+                                content: '50% Threshold',
+                                enabled: true,
+                                position: 'start',
+                                backgroundColor: 'rgba(255,0,0,0.2)',
+                                color: 'red',
+                                font: {
+                                    weight: 'bold'
+                                }
+                            }
+                        }
+                    }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(ctx) {
+                            const p = ctx.raw;
+                            return `${p.region}: (${p.x.toFixed(1)}% retired, ${p.y.toFixed(1)}%)`;
+                        }
+                    }
+                },
+                title: {
+                    display: true,
+                    text: 'Retired Population vs Conservative Vote & Turnout'
+                }
+            },
+            scales: {
+                x: {
+                    title: { display: true, text: '% Retired Population' }
+                },
+                y: {
+                    title: { display: true, text: '% Vote Share / Turnout' },
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+    </script>
+{% endblock %}
